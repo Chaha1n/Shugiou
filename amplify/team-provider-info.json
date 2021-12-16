@@ -1,23 +1,20 @@
 {
-    "dev": {
-        "awscloudformation": {
-            "AuthRoleName": "amplify-shugiou-dev-163106-authRole",
-            "UnauthRoleArn": "arn:aws:iam::241754016304:role/amplify-shugiou-dev-163106-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::241754016304:role/amplify-shugiou-dev-163106-authRole",
-            "Region": "ap-northeast-1",
-            "DeploymentBucketName": "amplify-shugiou-dev-163106-deployment",
-            "UnauthRoleName": "amplify-shugiou-dev-163106-unauthRole",
-            "StackName": "amplify-shugiou-dev-163106",
-            "StackId": "arn:aws:cloudformation:ap-northeast-1:241754016304:stack/amplify-shugiou-dev-163106/245bc810-5e42-11ec-adad-0a8a9c9afbe7",
-            "AmplifyAppId": "dmj6vzq6l5sby"
-        },
-        "categories": {
-            "hosting": {
-                "amplifyhosting": {
-                    "appId": "dmj6vzq6l5sby",
-                    "type": "cicd"
-                }
-            }
-        }
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-shugiou-dev-172825-authRole",
+      "UnauthRoleArn": "arn:aws:iam::241754016304:role/amplify-shugiou-dev-172825-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::241754016304:role/amplify-shugiou-dev-172825-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-shugiou-dev-172825-deployment",
+      "UnauthRoleName": "amplify-shugiou-dev-172825-unauthRole",
+      "StackName": "amplify-shugiou-dev-172825",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:241754016304:stack/amplify-shugiou-dev-172825/259e87a0-5e4a-11ec-b33b-0a66ff8856b7",
+      "AmplifyAppId": "d2scqnb41uwi86"
+    },
+    "categories": {
+      "auth": {
+        "shugiou3c73e2f63c73e2f6": {}
+      }
     }
+  }
 }

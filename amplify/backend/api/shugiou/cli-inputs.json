@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "shugiou",
+    "serviceName": "AppSync",
+    "gqlSchemaPath": "/home/fumiya/workspace/me/Shugiou/amplify/backend/api/shugiou/schema.graphql",
+    "defaultAuthType": {
+      "mode": "AWS_IAM"
+    }
+  }
+}
