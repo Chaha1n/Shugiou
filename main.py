@@ -1,22 +1,21 @@
-# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: MIT-0
 
 from awscrt import io, mqtt, auth, http
 from awsiot import mqtt_connection_builder
 import time as t
 import json
 
-# Define ENDPOINT, CLIENT_ID, PATH_TO_CERTIFICATE, PATH_TO_PRIVATE_KEY, PATH_TO_AMAZON_ROOT_CA_1, MESSAGE, TOPIC, and RANGE
+
 ENDPOINT = "agmxgja9ihm7-ats.iot.ap-northeast-1.amazonaws.com"
-CLIENT_ID = "testDevice"
 PATH_TO_CERTIFICATE = "./secret/certificate.pem.crt"
 PATH_TO_PRIVATE_KEY = "./secret/private.pem.key"
 PATH_TO_AMAZON_ROOT_CA_1 = "./secret/AmazonRootCA1.pem"
 
-TOPIC = ""
+
 RANGE = 5
 
-#部屋番号きく
+print("プレイヤー名を入力してね")
+username=input()
+CLIENT_ID = "Device"+username
 print("合言葉を入力してね")
 TOPIC=input()
 
@@ -46,9 +45,9 @@ print("Connected!")
 # Publish message to server desired number of times.
 print('Begin Publish')
 for i in range (RANGE):
-    data = "plmwa"
+    username = "plmwa"
     nioi = "100"
-    message = {"name" : data,"value" : nioi}
+    message = {"name" : username,"value" : nioi}
     mqtt_connection.publish(topic=TOPIC, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
     print(json.dumps(message))
     t.sleep(0.1)
