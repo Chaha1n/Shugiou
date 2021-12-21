@@ -77,11 +77,10 @@ class TGS2450:
 def on_message(topic,payload,**kwargs):
     global during_match
     print("Received message from topic '{}': {}".format(topic, payload))
-        #When we recieved message from browser like "finished", disconnect.
-        
+    #When we recieved message from browser like "finished", finish the match.    
     if(False): #temporary False
            during_match = False
-           
+
 def main():
     
     # Spin up resources
