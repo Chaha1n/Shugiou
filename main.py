@@ -53,7 +53,6 @@ class Client:
         sub_future.result()
         print("subscribed.")
 
-
     def publish(self,topic,message):
         print("publishing message '{}' to topic  '{}'".format(message,topic))
         self.client.publish(topic=topic, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
@@ -65,7 +64,7 @@ class TGS2450:
         self.heat_once()
         return 100 #temporary value
 
-    #Heat up sensor
+    # Heat up sensor
     def heat_once(self):
         sleep(0.25) #Just wait for 0.25 sec for now
     
@@ -74,15 +73,15 @@ class TGS2450:
         for i in range(40): #10 sec
             self.heat()
 
+
 def on_message(topic,payload,**kwargs):
     global during_match
     print("Received message from topic '{}': {}".format(topic, payload))
-    #When we recieved message from browser like "finished", finish the match.    
+    # When we recieved message from browser like "finished", finish the match.    
     if(False): #temporary False
            during_match = False
 
 def main():
-    
     # Spin up resources
     sensor = TGS2450()
     sensor.heat()
@@ -95,7 +94,7 @@ def main():
 
     client = Client(username,watchword)
     
-    # Make the connect() call
+    # Make the connect
     client.connect()
     #To receive message from browse, we have to subscribe too.
     client.subscribe(watchword,on_message) 
