@@ -11,7 +11,7 @@ PATH_TO_CERTIFICATE = "./secret/certificate.pem.crt"
 PATH_TO_PRIVATE_KEY = "./secret/private.pem.key"
 PATH_TO_AMAZON_ROOT_CA_1 = "./secret/AmazonRootCA1.pem"
 
-
+during_match = True
 
 class Client:
     def __init__(self,user_name,watchword):
@@ -43,19 +43,12 @@ class Client:
         disconnect_future.result()
         print("disconnected.")
 
-    def on_message(self,topic,payload,**kwargs):
-        print("Received message from topic '{}': {}".format(topic, payload))
-        #When we recieved message from browser like "finished", disconnect.
-        
-        if(False): #temporary False
-            self.disconnect()
-
-    def subscribe(self,topic):
+    def subscribe(self,topic,callback):
         print("subscribing to topic '{}'".format(topic))
         sub_future,packet_id = self.client.subscribe(
             topic = topic, 
             qos = mqtt.QoS.AT_LEAST_ONCE, 
-            callback = self.on_message
+            callback = callback
         )
         sub_future.result()
         print("subscribed.")
@@ -81,6 +74,14 @@ class TGS2450:
         for i in range(40): #10 sec
             self.heat()
 
+def on_message(topic,payload,**kwargs):
+    global during_match
+    print("Received message from topic '{}': {}".format(topic, payload))
+        #When we recieved message from browser like "finished", disconnect.
+        
+    if(False): #temporary False
+           during_match = False
+           
 def main():
     
     # Spin up resources
@@ -98,8 +99,8 @@ def main():
     # Make the connect() call
     client.connect()
     #To receive message from browse, we have to subscribe too.
-    client.subscribe(watchword) 
-    while True:
+    client.subscribe(watchword,on_message) 
+    while during_match:
         smell = sensor.read()
         message = {"name" : username,"value" : smell}
         client.publish(watchword,message)
