@@ -3,6 +3,7 @@ from awscrt import io, mqtt, auth, http
 from awsiot import mqtt_connection_builder
 import time as t
 import json
+from time import sleep
 
 
 ENDPOINT = "agmxgja9ihm7-ats.iot.ap-northeast-1.amazonaws.com"
@@ -11,46 +12,97 @@ PATH_TO_PRIVATE_KEY = "./secret/private.pem.key"
 PATH_TO_AMAZON_ROOT_CA_1 = "./secret/AmazonRootCA1.pem"
 
 
-RANGE = 5
 
-print("プレイヤー名を入力してね")
-username=input()
-CLIENT_ID = "Device"+username
-print("合言葉を入力してね")
-TOPIC=input()
+class Client:
+    def __init__(self,user_name,watchword):
+        event_loop_group = io.EventLoopGroup(1)
+        host_resolver = io.DefaultHostResolver(event_loop_group)
+        client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
+        client_id = 'device' + user_name
 
-
-
-# Spin up resources
-event_loop_group = io.EventLoopGroup(1)
-host_resolver = io.DefaultHostResolver(event_loop_group)
-client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
-mqtt_connection = mqtt_connection_builder.mtls_from_path(
+        self.client =  mqtt_connection_builder.mtls_from_path(
             endpoint=ENDPOINT,
             cert_filepath=PATH_TO_CERTIFICATE,
             pri_key_filepath=PATH_TO_PRIVATE_KEY,
             client_bootstrap=client_bootstrap,
             ca_filepath=PATH_TO_AMAZON_ROOT_CA_1,
-            client_id=CLIENT_ID,
+            client_id=client_id,
             clean_session=False,
             keep_alive_secs=6
-            )
-print("Connecting to {} with client ID '{}'...".format(
-        ENDPOINT, CLIENT_ID))
-# Make the connect() call
-connect_future = mqtt_connection.connect()
-# Future.result() waits until a result is available
-connect_future.result()
-print("Connected!")
-# Publish message to server desired number of times.
-print('Begin Publish')
-for i in range (RANGE):
-    username = "plmwa"
-    nioi = "100"
-    message = {"name" : username,"value" : nioi}
-    mqtt_connection.publish(topic=TOPIC, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
-    print(json.dumps(message))
-    t.sleep(0.1)
-print('Publish End')
-disconnect_future = mqtt_connection.disconnect()
-disconnect_future.result()
+        )
+
+    def connect(self):
+        print("connecting...")
+        connect_future = self.client.connect()
+        connect_future.result()
+        print("connected.")
+
+    def disconnect(self):
+        print("disconnecting...")
+        disconnect_future = self.client.disconnect()
+        disconnect_future.result()
+        print("disconnected.")
+
+    def on_message(self,topic,payload,**kwargs):
+        print("Received message from topic '{}': {}".format(topic, payload))
+        #When we recieved message from browser like "finished", disconnect.
+        
+        if(False): #temporary False
+            self.disconnect()
+
+    def subscribe(self,topic):
+        print("subscribing to topic '{}'".format(topic))
+        sub_future,packet_id = self.client.subscribe(
+            topic = topic, 
+            qos = mqtt.QoS.AT_LEAST_ONCE, 
+            callback = self.on_message
+        )
+        sub_future.result()
+        print("subscribed.")
+
+
+    def publish(self,topic,message):
+        print("publishing message '{}' to topic  '{}'".format(message,topic))
+        self.client.publish(topic=topic, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
+        print("published.")
+
+
+class TGS2450:
+    def read(self):
+        self.heat_once()
+        return 100 #temporary value
+
+    #Heat up sensor
+    def heat_once(self):
+        sleep(0.25) #Just wait for 0.25 sec for now
+    
+    def heat(self):
+        print("Heating up TGS2450.Please wait for a moment...")
+        for i in range(40): #10 sec
+            self.heat()
+
+def main():
+    
+    # Spin up resources
+    sensor = TGS2450()
+    sensor.heat()
+
+    print("プレイヤー名を入力してね")
+    username=input()
+
+    print("合言葉を入力してね")
+    watchword=input()
+
+    client = Client(username,watchword)
+    
+    # Make the connect() call
+    client.connect()
+    #To receive message from browse, we have to subscribe too.
+    client.subscribe(watchword) 
+    while True:
+        smell = sensor.read()
+        message = {"name" : username,"value" : smell}
+        client.publish(watchword,message)
+
+if __name__ == "__main__":
+    main()
