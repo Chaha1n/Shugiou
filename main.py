@@ -5,6 +5,7 @@ import time as t
 import json
 from time import sleep
 
+import serial
 
 ENDPOINT = "agmxgja9ihm7-ats.iot.ap-northeast-1.amazonaws.com"
 PATH_TO_CERTIFICATE = "./secret/certificate.pem.crt"
@@ -59,20 +60,14 @@ class Client:
         print("published.")
 
 
-class TGS2450:
+class Sensor:
     def __init__(self):
-        print("Heating up TGS2450.Please wait for a moment...")
-        for i in range(40): #10 sec
-            self.heat()
-            
+        self.serial = serial.Serial('/dev/ttyUSB0', 115200)
+
     def read(self):
-        self.heat()
-        return 100 #temporary value
-
-    # Heat up sensor
-    def heat(self):
-        sleep(0.25) #Just wait for 0.25 sec for now
-
+        data_str = self.serial.readline().decode()
+        return data_str.split("\r")[0]   
+    
 
 def on_message(topic,payload,**kwargs):
     global during_match
@@ -86,7 +81,7 @@ def on_message(topic,payload,**kwargs):
 def main():
     global during_match
     # Spin up resources
-    sensor = TGS2450()
+    sensor = Sensor()
 
     print("input player name")
     username=input()
@@ -101,6 +96,7 @@ def main():
     #To receive message from browse, we have to subscribe too.
     client.subscribe(watchword,on_message) 
     while during_match:
+        sleep(1)
         smell = sensor.read()
         message = {"name" : username,"value" : smell}
         client.publish(watchword,message)
