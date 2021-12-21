@@ -7,6 +7,7 @@ name = "pypi"
 awscrt = "==0.12.1"
 awsiotsdk = "==1.7.1"
 python-dotenv = "*"
+pyserial = "*"
 
 [dev-packages]
 
