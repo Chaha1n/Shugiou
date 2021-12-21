@@ -82,6 +82,7 @@ def on_message(topic,payload,**kwargs):
            during_match = False
 
 def main():
+    global during_match
     # Spin up resources
     sensor = TGS2450()
     sensor.heat()
