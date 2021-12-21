@@ -60,37 +60,38 @@ class Client:
 
 
 class TGS2450:
-    def read(self):
-        self.heat_once()
-        return 100 #temporary value
-
-    # Heat up sensor
-    def heat_once(self):
-        sleep(0.25) #Just wait for 0.25 sec for now
-    
-    def heat(self):
+    def __init__(self):
         print("Heating up TGS2450.Please wait for a moment...")
         for i in range(40): #10 sec
             self.heat()
+            
+    def read(self):
+        self.heat()
+        return 100 #temporary value
+
+    # Heat up sensor
+    def heat(self):
+        sleep(0.25) #Just wait for 0.25 sec for now
 
 
 def on_message(topic,payload,**kwargs):
     global during_match
     print("Received message from topic '{}': {}".format(topic, payload))
-    # When we recieved message from browser like "finished", finish the match.    
-    if(False): #temporary False
+    # When we recieved message from browser like "finished", finish the match.   
+    payload_json = json.loads(payload.decode())
+    print(payload_json)
+    if('message' in payload_json and payload_json['message'] == "finished"): #temporary False
            during_match = False
 
 def main():
     global during_match
     # Spin up resources
     sensor = TGS2450()
-    sensor.heat()
 
-    print("プレイヤー名を入力してね")
+    print("input player name")
     username=input()
 
-    print("合言葉を入力してね")
+    print("input watchward")
     watchword=input()
 
     client = Client(username,watchword)
