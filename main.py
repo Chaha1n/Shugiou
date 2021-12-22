@@ -7,6 +7,8 @@ from time import sleep
 
 import serial
 
+
+
 ENDPOINT = "agmxgja9ihm7-ats.iot.ap-northeast-1.amazonaws.com"
 PATH_TO_CERTIFICATE = "./secret/certificate.pem.crt"
 PATH_TO_PRIVATE_KEY = "./secret/private.pem.key"
@@ -33,32 +35,26 @@ class Client:
         )
 
     def connect(self):
-        print("connecting...")
+        print("サーバーに接続中")
         connect_future = self.client.connect()
         connect_future.result()
-        print("connected.")
+        print("接続しました")
 
     def disconnect(self):
-        print("disconnecting...")
         disconnect_future = self.client.disconnect()
         disconnect_future.result()
-        print("disconnected.")
 
     def subscribe(self,topic,callback):
-        print("subscribing to topic '{}'".format(topic))
+        print("合言葉'{}'でプレイします".format(topic))
         sub_future,packet_id = self.client.subscribe(
             topic = topic, 
             qos = mqtt.QoS.AT_LEAST_ONCE, 
             callback = callback
         )
         sub_future.result()
-        print("subscribed.")
 
     def publish(self,topic,message):
-        print("publishing message '{}' to topic  '{}'".format(message,topic))
         self.client.publish(topic=topic, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
-        print("published.")
-
 
 class Sensor:
     def __init__(self):
@@ -71,10 +67,8 @@ class Sensor:
 
 def on_message(topic,payload,**kwargs):
     global during_match
-    print("Received message from topic '{}': {}".format(topic, payload))
     # When we recieved message from browser like "finished", finish the match.   
     payload_json = json.loads(payload.decode())
-    print(payload_json)
     if('message' in payload_json and payload_json['message'] == "finished"): #temporary False
            during_match = False
 
@@ -83,10 +77,10 @@ def main():
     # Spin up resources
     sensor = Sensor()
 
-    print("input player name")
+    print("プレイヤー名を入力")
     username=input()
 
-    print("input watchward")
+    print("合言葉を入力")
     watchword=input()
 
     client = Client(username,watchword)
