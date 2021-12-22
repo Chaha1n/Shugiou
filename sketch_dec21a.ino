@@ -61,6 +61,8 @@ void loop(){
   int val = 0;
   //臭いに反応したら数値が上がるように、取得値を逆転させる
   val = 1023 - readSenser();
-  heat();
+  for(int i=0;i<4;i++){
+    heat();
+  }
   Serial.println(val);
 }
