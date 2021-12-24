@@ -25,16 +25,21 @@ class Sensor:
         data_str = self.serial.readline().decode()
         return data_str.split("\r")[0]   
  
+def publish(client,topic,message):
+    client.publish(topic,json.dumps(message))
+    print(json.dumps(message))
+
+      
+  
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("サーバーに接続しました")
+    else:
+        print("Failed to connect, return code %d\n", rc)        
+
 
 
 def connect_mqtt(client_user):
-
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            print("サーバーに接続しました")
-
-        else:
-            print("Failed to connect, return code %d\n", rc)
     client_id = 'device' + client_user
     client = mqtt_client.Client(client_id)
     client.username_pw_set(username, password)
@@ -43,11 +48,9 @@ def connect_mqtt(client_user):
     return client
 
 
-def publish(client,topic,message):
-    client.publish(topic,json.dumps(message))
-    print(json.dumps(message))
-        
-def standard_smell():
+
+
+def get_smell():
     print("基準値を取得しています")
     standard_value=0
     for i in range(10):
@@ -68,10 +71,16 @@ def main():
     client.loop_start()
 
     sensor = Sensor()
-    
-    standard_value=standard_smell()
+
+    #時間が10秒かかります
+    standard_value=get_smell()
 
     #試合開始判定処理はここに書くことになるのかな？
+    
+    #client.subscribe(topic)
+
+
+
 
     while True:
         smell=int(sensor.read())
