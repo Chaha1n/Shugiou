@@ -47,8 +47,13 @@ def publish(client,topic,message):
     client.publish(topic,json.dumps(message))
     print(json.dumps(message))
         
-
-
+def standard_smell():
+    print("基準値を取得しています")
+    standard_value=0
+    for i in range(10):
+        standard_value+=int(Sensor().read())
+    standard_value/=10
+    return standard_value
         
 
 def main():
@@ -64,19 +69,13 @@ def main():
 
     sensor = Sensor()
     
-    #基準値をきめる
-    print("基準値を取得しています")
-    standard_smell=0
-    for i in range(10):
-        standard_smell+=int(sensor.read())
-    standard_smell/=10
-    
-    #試合開始判定処理はここに書くことになるのかな？
+    standard_value=standard_smell()
 
+    #試合開始判定処理はここに書くことになるのかな？
 
     while True:
         smell=int(sensor.read())
-        smell=str(smell-standard_smell)
+        smell=str(smell-standard_value)
         #基準値から引いた値をpub
         message = {"name" : username,"value" : smell}
         publish(client,topic,message)
