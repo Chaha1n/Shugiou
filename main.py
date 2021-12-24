@@ -23,7 +23,7 @@ class Sensor:
 
     def read(self):
         data_str = self.serial.readline().decode()
-        return data_str.split("\r")[0]   
+        return int(data_str.split("\r")[0])   
  
 def publish(client,topic,message):
     client.publish(topic,json.dumps(message))
@@ -79,11 +79,8 @@ def main():
     
     #client.subscribe(topic)
 
-
-
-
     while True:
-        smell=int(sensor.read())
+        smell=sensor.read()
         smell=str(smell-standard_value)
         #基準値から引いた値をpub
         message = {"name" : username,"value" : smell}
