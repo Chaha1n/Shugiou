@@ -26,8 +26,8 @@ class Sensor:
         return data_str.split("\r")[0]   
  
 
-def connect_mqtt():
-    global client_id
+
+def connect_mqtt(client_user):
 
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
@@ -35,7 +35,7 @@ def connect_mqtt():
 
         else:
             print("Failed to connect, return code %d\n", rc)
-    
+    client_id = 'device' + client_user
     client = mqtt_client.Client(client_id)
     client.username_pw_set(username, password)
     client.on_connect = on_connect
@@ -48,18 +48,18 @@ def publish(client,topic,message):
     print(json.dumps(message))
         
 
+
+        
+
 def main():
-    global client_id
    
     print("プレイヤー名を入力")
     username=input()
 
-    client_id = username
-
     print("合言葉を入力")
     topic=input()
 
-    client = connect_mqtt()
+    client = connect_mqtt(username)
     client.loop_start()
 
     sensor = Sensor()
@@ -70,7 +70,7 @@ def main():
     for i in range(10):
         standard_smell+=int(sensor.read())
     standard_smell/=10
-
+    
     #試合開始判定処理はここに書くことになるのかな？
 
 
