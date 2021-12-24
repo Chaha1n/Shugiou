@@ -1,4 +1,3 @@
-# python 3.6
 
 import time
 import json
@@ -50,7 +49,7 @@ def connect_mqtt(client_user):
 
 
 
-def get_smell():
+def get_standard_smell():
     print("基準値を取得しています")
     standard_value=0
     for i in range(10):
@@ -72,8 +71,9 @@ def main():
 
     sensor = Sensor()
 
+
     #時間が10秒かかります
-    standard_value=get_smell()
+    standard_value=get_standard_smell()
 
     #試合開始判定処理はここに書くことになるのかな？
     
