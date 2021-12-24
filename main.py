@@ -1,60 +1,21 @@
+# python 3.6
 
-from awscrt import io, mqtt, auth, http
-from awsiot import mqtt_connection_builder
-import time as t
+import time
 import json
-from time import sleep
+import os
+
+from paho.mqtt import client as mqtt_client
 
 import serial
 
+from dotenv import load_dotenv
+load_dotenv()
 
-
-ENDPOINT = "agmxgja9ihm7-ats.iot.ap-northeast-1.amazonaws.com"
-PATH_TO_CERTIFICATE = "./secret/certificate.pem.crt"
-PATH_TO_PRIVATE_KEY = "./secret/private.pem.key"
-PATH_TO_AMAZON_ROOT_CA_1 = "./secret/AmazonRootCA1.pem"
-
-during_match = True
-
-class Client:
-    def __init__(self,user_name,watchword):
-        event_loop_group = io.EventLoopGroup(1)
-        host_resolver = io.DefaultHostResolver(event_loop_group)
-        client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
-        client_id = 'device' + user_name
-
-        self.client =  mqtt_connection_builder.mtls_from_path(
-            endpoint=ENDPOINT,
-            cert_filepath=PATH_TO_CERTIFICATE,
-            pri_key_filepath=PATH_TO_PRIVATE_KEY,
-            client_bootstrap=client_bootstrap,
-            ca_filepath=PATH_TO_AMAZON_ROOT_CA_1,
-            client_id=client_id,
-            clean_session=False,
-            keep_alive_secs=6
-        )
-
-    def connect(self):
-        print("サーバーに接続中")
-        connect_future = self.client.connect()
-        connect_future.result()
-        print("接続しました")
-
-    def disconnect(self):
-        disconnect_future = self.client.disconnect()
-        disconnect_future.result()
-
-    def subscribe(self,topic,callback):
-        print("合言葉'{}'でプレイします".format(topic))
-        sub_future,packet_id = self.client.subscribe(
-            topic = topic, 
-            qos = mqtt.QoS.AT_LEAST_ONCE, 
-            callback = callback
-        )
-        sub_future.result()
-
-    def publish(self,topic,message):
-        self.client.publish(topic=topic, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
+broker = os.environ['broker']
+port = int(os.environ['port'])
+username = os.environ['username']
+password = os.environ['password']
+client_id=""
 
 class Sensor:
     def __init__(self):
@@ -63,37 +24,65 @@ class Sensor:
     def read(self):
         data_str = self.serial.readline().decode()
         return data_str.split("\r")[0]   
-    
+ 
 
-def on_message(topic,payload,**kwargs):
-    global during_match
-    # When we recieved message from browser like "finished", finish the match.   
-    payload_json = json.loads(payload.decode())
-    if('message' in payload_json and payload_json['message'] == "finished"): #temporary False
-           during_match = False
+def connect_mqtt():
+    global client_id
+
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("サーバーに接続しました")
+
+        else:
+            print("Failed to connect, return code %d\n", rc)
+    
+    client = mqtt_client.Client(client_id)
+    client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    client.connect(broker, port)
+    return client
+
+
+def publish(client,topic,message):
+    client.publish(topic,json.dumps(message))
+    print(json.dumps(message))
+        
 
 def main():
-    global during_match
-    # Spin up resources
-    sensor = Sensor()
-
+    global client_id
+   
     print("プレイヤー名を入力")
     username=input()
 
+    client_id = username
+
     print("合言葉を入力")
-    watchword=input()
+    topic=input()
 
-    client = Client(username,watchword)
+    client = connect_mqtt()
+    client.loop_start()
+
+    sensor = Sensor()
     
-    # Make the connect
-    client.connect()
-    #To receive message from browse, we have to subscribe too.
-    client.subscribe(watchword,on_message) 
-    while during_match:
-        sleep(1)
-        smell = sensor.read()
-        message = {"name" : username,"value" : smell}
-        client.publish(watchword,message)
+    #基準値をきめる
+    print("基準値を取得しています")
+    standard_smell=0
+    for i in range(10):
+        standard_smell+=int(sensor.read())
+    standard_smell/=10
 
-if __name__ == "__main__":
+    #試合開始判定処理はここに書くことになるのかな？
+
+
+    while True:
+        smell=int(sensor.read())
+        smell=str(smell-standard_smell)
+        #基準値から引いた値をpub
+        message = {"name" : username,"value" : smell}
+        publish(client,topic,message)
+
+
+
+
+if __name__ == '__main__':
     main()
