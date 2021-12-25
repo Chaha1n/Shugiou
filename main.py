@@ -14,7 +14,6 @@ broker = os.environ['broker']
 port = int(os.environ['port'])
 username = os.environ['username']
 password = os.environ['password']
-client_id=""
 
 player_name=""
 before_match=True
@@ -35,9 +34,10 @@ def publish(client,topic,message):
 
 def on_message(client, userdata, msg):
     global player_name
-    global before_match  
-
-    if player_name!=eval(msg.payload.decode())["name"]:
+    global before_match 
+    who_player=msg.payload.decode().split("\"")[3]
+    print(who_player)
+    if player_name!=who_player:
         before_match=False
 
 def on_connect(client, userdata, flags, rc):
