@@ -66,7 +66,14 @@ def get_standard_smell():
         standard_value+=int(Sensor().read())
     standard_value/=10
     return standard_value
-        
+
+def get_percent_smell(sum_smell):
+    #kokoha ataiwokaenagarajikantyousei
+    max_smell=4000.00
+    
+    rate_smell=int((sum_smell/max_smell)*100)
+    return str(rate_smell)
+
 
 def main():
     global before_match
@@ -87,14 +94,17 @@ def main():
     #時間が10秒かかります
     standard_value=get_standard_smell()
 
+    sum_smell=0.00
     while True:
         smell=sensor.read()
-        smell=str(smell-standard_value)
+        smell=float(smell-standard_value)+5
+        sum_smell+=smell
+        print(sum_smell)
+        rate_smell=get_percent_smell(sum_smell)
         #試合が始まっていないなら0を返す
         if before_match:
-            smell=str(0)
-        #基準値から引いた値をpub
-        message = {"name" :player_name,"value" : smell}
+            rate_smell=str(0)
+        message = {"name" :player_name,"value" : rate_smell}
         publish(client,topic,message)
 
 
