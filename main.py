@@ -41,7 +41,7 @@ def on_message(client, user_data, msg):
     if player_name!=player_name_parsed_from_MQTT_payload["name"]:
         before_match=False
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, user_data, flags, rc):
     if rc == 0:
         print("サーバーに接続しました")
     else:
