@@ -19,6 +19,7 @@ password = os.environ['password']
 
 player_name=""
 before_match=True
+go_on_match=True
 
 class Sensor:
     def __init__(self):
@@ -37,15 +38,17 @@ def publish(client,topic,message):
 def on_message(client, user_data, msg):
     global player_name
     global before_match 
+    global go_on_match
 
     user_data_currently_connected=json.loads(msg.payload)
     if player_name!=user_data_currently_connected["name"]:
         before_match=False
     print(int(user_data_currently_connected["value"]))
-    #if int(user_data_currently_connected["value"])>=100:
-        #print("対戦終了　結果をブラウザで確認しよう!!")
-        #client.disconnect()
-        #sys.exit()
+    if int(user_data_currently_connected["value"])>=100:
+        print("対戦終了　結果をブラウザで確認しよう!!")
+        go_on_match=False
+        client.loop_stop()
+        
 def on_connect(client, user_data, flags, rc):
     if rc == 0:
         print("サーバーに接続しました")
@@ -82,6 +85,7 @@ def get_percent_smell(sum_smell):
 
 def main():
     global before_match
+    global go_on_match
     global player_name
     print("プレイヤー名を入力")
     player_name=input()
@@ -100,7 +104,7 @@ def main():
     standard_value=get_standard_smell()
 
     sum_smell=0.00
-    while True:
+    while go_on_match:
         smell=sensor.read()
         #mainasuwohaijyo
         smell=float(smell-standard_value)+100
