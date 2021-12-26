@@ -14,7 +14,9 @@ broker = os.environ['broker']
 port = int(os.environ['port'])
 username = os.environ['username']
 password = os.environ['password']
-client_id=""
+
+player_name=""
+before_match=True
 
 class Sensor:
     def __init__(self):
@@ -28,9 +30,17 @@ def publish(client,topic,message):
     client.publish(topic,json.dumps(message))
     print(json.dumps(message))
 
-      
-  
-def on_connect(client, userdata, flags, rc):
+# メッセージが届いたときの処理
+
+def on_message(client, user_data, msg):
+    global player_name
+    global before_match 
+    user_data_currently_connected=json.loads(msg.payload)
+    print(user_data_currently_connected["name"])
+    if player_name!=user_data_currently_connected["name"]:
+        before_match=False
+
+def on_connect(client, user_data, flags, rc):
     if rc == 0:
         print("サーバーに接続しました")
     else:
@@ -43,10 +53,9 @@ def connect_mqtt(client_user):
     client = mqtt_client.Client(client_id)
     client.username_pw_set(username, password)
     client.on_connect = on_connect
+    client.on_message = on_message
     client.connect(broker, port)
     return client
-
-
 
 
 def get_standard_smell():
@@ -59,14 +68,16 @@ def get_standard_smell():
         
 
 def main():
-   
+    global before_match
+    global player_name
     print("プレイヤー名を入力")
-    username=input()
+    player_name=input()
 
     print("合言葉を入力")
     topic=input()
 
-    client = connect_mqtt(username)
+    client = connect_mqtt(player_name)
+    client.subscribe(topic)
     client.loop_start()
 
     sensor = Sensor()
@@ -75,15 +86,14 @@ def main():
     #時間が10秒かかります
     standard_value=get_standard_smell()
 
-    #試合開始判定処理はここに書くことになるのかな？
-    
-    #client.subscribe(topic)
-
     while True:
         smell=sensor.read()
         smell=str(smell-standard_value)
+        #試合が始まっていないなら0を返す
+        if before_match:
+            smell=str(0)
         #基準値から引いた値をpub
-        message = {"name" : username,"value" : smell}
+        message = {"name" :player_name,"value" : smell}
         publish(client,topic,message)
 
 
