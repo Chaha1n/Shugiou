@@ -18,7 +18,7 @@ mqttc.username_pw_set(username, password)
 mqttc.connect(broker,port, 60)  # MQTT broker接続
 
 mqttc.loop_start() # 処理開始
-message = {"name" : "aa","value" : 200}
+message = {"name" : "aa","value" : 100}
 while 1:
     mqttc.publish("2222", json.dumps(message))  # topic名="Topic1"に "test1"というメッセージを送信
     time.sleep(1)

@@ -10,6 +10,8 @@ import serial
 from dotenv import load_dotenv
 load_dotenv()
 
+import sys
+
 broker = os.environ['broker']
 port = int(os.environ['port'])
 username = os.environ['username']
@@ -35,12 +37,15 @@ def publish(client,topic,message):
 def on_message(client, user_data, msg):
     global player_name
     global before_match 
-    
-    player_name_parsed_from_MQTT_payload=json.loads(msg.payload)
-    print(player_name_parsed_from_MQTT_payload["name"])
-    if player_name!=player_name_parsed_from_MQTT_payload["name"]:
-        before_match=False
 
+    user_data_currently_connected=json.loads(msg.payload)
+    if player_name!=user_data_currently_connected["name"]:
+        before_match=False
+    print(int(user_data_currently_connected["value"]))
+    #if int(user_data_currently_connected["value"])>=100:
+        #print("対戦終了　結果をブラウザで確認しよう!!")
+        #client.disconnect()
+        #sys.exit()
 def on_connect(client, user_data, flags, rc):
     if rc == 0:
         print("サーバーに接続しました")
@@ -69,7 +74,7 @@ def get_standard_smell():
 
 def get_percent_smell(sum_smell):
     #kokoha ataiwokaenagarajikantyousei
-    max_smell=4000.00
+    max_smell=10000.00
     
     rate_smell=int((sum_smell/max_smell)*100)
     return str(rate_smell)
@@ -97,13 +102,15 @@ def main():
     sum_smell=0.00
     while True:
         smell=sensor.read()
-        smell=float(smell-standard_value)+5
-        sum_smell+=smell
-        print(sum_smell)
+        #mainasuwohaijyo
+        smell=float(smell-standard_value)+100
         rate_smell=get_percent_smell(sum_smell)
         #試合が始まっていないなら0を返す
         if before_match:
             rate_smell=str(0)
+        else:
+            sum_smell+=smell
+        print(smell)
         message = {"name" :player_name,"value" : rate_smell}
         publish(client,topic,message)
 
