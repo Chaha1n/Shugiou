@@ -37,7 +37,7 @@ def on_message(client, user_data, msg):
     global before_match 
     user_data_currently_connected=json.loads(msg.payload)
     print(user_data_currently_connected["name"])
-    if player_name!="plmw":
+    if player_name!=user_data_currently_connected["name"]:
         before_match=False
 
 def on_connect(client, user_data, flags, rc):
