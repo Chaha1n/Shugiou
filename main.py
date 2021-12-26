@@ -10,7 +10,6 @@ import serial
 from dotenv import load_dotenv
 load_dotenv()
 
-import sys
 
 broker = os.environ['broker']
 port = int(os.environ['port'])
