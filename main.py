@@ -35,10 +35,9 @@ def publish(client,topic,message):
 def on_message(client, user_data, msg):
     global player_name
     global before_match 
-    
-    player_name_parsed_from_MQTT_payload=json.loads(msg.payload)
-    print(player_name_parsed_from_MQTT_payload["name"])
-    if player_name!=player_name_parsed_from_MQTT_payload["name"]:
+    user_data_currently_connected=json.loads(msg.payload)
+    print(user_data_currently_connected["name"])
+    if player_name!="plmw":
         before_match=False
 
 def on_connect(client, user_data, flags, rc):
