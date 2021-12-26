@@ -32,12 +32,13 @@ def publish(client,topic,message):
 
 # メッセージが届いたときの処理
 
-def on_message(client, userdata, msg):
+def on_message(client, user_data, msg):
     global player_name
     global before_match 
-    who_player=msg.payload.decode().split("\"")[3]
-    print(who_player)
-    if player_name!=who_player:
+    
+    player_name_parsed_from_MQTT_payload=json.loads(msg.payload)
+    print(player_name_parsed_from_MQTT_payload["name"])
+    if player_name!=player_name_parsed_from_MQTT_payload["name"]:
         before_match=False
 
 def on_connect(client, userdata, flags, rc):
