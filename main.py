@@ -101,7 +101,9 @@ def main():
 
     #時間が10秒かかります
     standard_value=get_standard_smell()
-
+    print("開始するには任意のキーを押してください")
+    _ = input()
+    
     sum_smell=0.00
     while go_on_match:
         smell=sensor.read()
