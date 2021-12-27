@@ -10,6 +10,8 @@ import serial
 from dotenv import load_dotenv
 load_dotenv()
 
+import webbrowser
+
 
 broker = os.environ['broker']
 port = int(os.environ['port'])
@@ -91,6 +93,8 @@ def main():
 
     print("合言葉を入力")
     topic=input()
+
+    webbrowser.open("https://shugiou.vercel.app/")
 
     client = connect_mqtt(player_name)
     client.subscribe(topic)
